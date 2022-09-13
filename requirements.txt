@@ -1,5 +1,7 @@
 opencv-python
 numpy
-tensorflow
+tensorflow-macos
+tensorflow-metal
 Pillow
 matplotlib
+Flask

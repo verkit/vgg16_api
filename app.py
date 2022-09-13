@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import cv2
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
@@ -8,7 +9,7 @@ from keras.models import load_model
 
 app = Flask(__name__)
 
-app.config['UPLOAD_FOLDER'] = '/temp'
+app.config['UPLOAD_FOLDER'] = 'temp'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
@@ -36,8 +37,11 @@ def predict():
 		filename = secure_filename(file.filename)
 		path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 		file.save(path)
-		pred = predict(path)
-		resp = jsonify({'message' : pred})
+		pred = predict(path)		
+		resp = jsonify({
+			'message' : 'succesfully classify', 
+			'value': pred,
+			})
 		resp.status_code = 201
 		return resp
 	else:
@@ -48,10 +52,19 @@ def predict():
 file_model = 'vgg16_scratch.h5'
 
 def predict(path):
+	data = np.zeros((1, 224, 224, 3))
 	img = cv2.imread(path)
 	img = cv2.resize(img,(224,224))
 	pil_img = Image.fromarray(img)
-	data =img_to_array(pil_img)	
+	data[0]+=img_to_array(pil_img)
 	model = load_model(file_model)
 	y_pred = model.predict(data)  
-	return y_pred
+
+	y_prediction_n = None
+	for i in range(0, len(y_pred)):
+		max_n = np.max(y_pred[i])
+		index_n = [index_n for index_n, j in enumerate(y_pred[i]) if j == max_n]
+		y_prediction_n = index_n
+
+	labels = ["pneumonia", "covid", "normal", "tbc"]
+	return labels[y_prediction_n[0]]
