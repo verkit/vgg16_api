@@ -40,7 +40,8 @@ def predict():
 		pred = predict(path)		
 		resp = jsonify({
 			'message' : 'succesfully classify', 
-			'value': pred,
+			'output': pred[0],
+			'probability': pred[1],
 			})
 		resp.status_code = 201
 		return resp
