@@ -50,6 +50,7 @@ def predict():
 		return resp
 
 file_model = 'vgg16_scratch.h5'
+labels = ["pneumonia", "covid", "normal", "tbc"]
 
 def predict(path):
 	data = np.zeros((1, 224, 224, 3))
@@ -60,11 +61,17 @@ def predict(path):
 	model = load_model(file_model)
 	y_pred = model.predict(data)  
 
-	y_prediction_n = None
-	for i in range(0, len(y_pred)):
-		max_n = np.max(y_pred[i])
-		index_n = [index_n for index_n, j in enumerate(y_pred[i]) if j == max_n]
-		y_prediction_n = index_n
+	dict_result = {}
+	for i in range(4) :
+		dict_result[y_pred[0][i]] = labels[i]		
+	res = y_pred[0]
+	res.sort()
+	res = res[::-1]
+	prob=res[:4]
+	prob_result =[]
+	class_result=[]
+	for i in range(4) :
+		prob_result.append ((prob[i]*100).round(2))
+		class_result.append(dict_result[prob[i]])
 
-	labels = ["pneumonia", "covid", "normal", "tbc"]
-	return labels[y_prediction_n[0]]
+	return class_result, prob_result
