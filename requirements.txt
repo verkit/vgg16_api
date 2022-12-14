@@ -1,7 +1,0 @@
-opencv-python
-numpy
-tensorflow-macos
-tensorflow-metal
-Pillow
-matplotlib
-Flask
